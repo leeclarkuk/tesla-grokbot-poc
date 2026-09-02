@@ -40,16 +40,23 @@ export class VoiceCompanion {
     }
     const status = await this.gateway.getAgentStatus(listed.id);
 
+    if (action === "read_agent_status" || action === "read_concise_summary") {
+      return speak(`${status.displayName} is ${status.status}.`);
+    }
+
+    if (
+      action !== "delegate_bounded_task" &&
+      action !== "request_research" &&
+      action !== "ask_question"
+    ) {
+      return speak(`${status.displayName} is ${status.status}.`);
+    }
+
     const task = await this.gateway.createTask({
       agentId: listed.id,
       instruction: utterance.text,
     });
     const result = await this.gateway.getResult(task.id);
-
-    if (action === "read_agent_status" || action === "read_concise_summary") {
-      return speak(`${status.displayName} is ${status.status}.`);
-    }
-
     return speak(result.summary);
   }
 }

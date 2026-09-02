@@ -35,7 +35,7 @@ describe("voice companion loop", () => {
 
     expect(response.text).toMatch(/Companion is idle/i);
     expect(response.text.length).toBeLessThanOrEqual(140);
-    expect(provider.createTaskCalls).toHaveLength(1);
+    expect(provider.createTaskCalls).toHaveLength(0);
   });
 
   it("allows a bounded non-writing task while motion is unknown", async () => {
@@ -137,6 +137,20 @@ describe("voice companion loop", () => {
       expect(provider.createTaskCalls, row.text).toEqual([]);
       expect(response.text, row.text).toMatch(row.spoken);
     }
+  });
+
+  it("does not create a task for unclassified text", async () => {
+    const provider = new RecordingProvider();
+    const companion = new VoiceCompanion(provider);
+    const text = "Please note this.";
+
+    expect(classifyRequest(text)).toBe("unclassified");
+
+    const response = await companion.handle(utterance(text));
+
+    expect(provider.createTaskCalls).toEqual([]);
+    expect(response.text.length).toBeGreaterThan(0);
+    expect(response.text.length).toBeLessThanOrEqual(140);
   });
 
   it("does not corrupt in-memory agent state on a replayed second call", async () => {
