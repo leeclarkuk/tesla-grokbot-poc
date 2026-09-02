@@ -32,7 +32,7 @@ Compile on a Mac. Physical iPhone. Simulator is a poor proof.
 2. Open `ios/DrivingVoiceProof/DrivingVoiceProof.xcodeproj` in Xcode on a Mac.
 3. Select your development team (Automatic signing).
 4. Install on the physical iPhone.
-5. While parked: set the companion URL (`http://<lan-ip>:8787`, LAN or hotspot, not public), tap **Enable microphone and speech**, grant mic and speech.
+5. While parked: set the companion URL to the machine's LAN or hotspot address on port 8787, for example `http://172.20.10.2:8787` (not public, not loopback), tap **Enable microphone and speech**, grant mic and speech.
 6. Tap **Listen**, speak the full request, tap **Stop and send**.
 
 The parked screen is setup only. There is no driving dashboard. The app POSTs the whole transcript and speaks the reply on the same Bluetooth route.
