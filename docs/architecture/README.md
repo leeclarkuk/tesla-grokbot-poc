@@ -4,7 +4,7 @@ This is the conceptual architecture for a voice-first driver companion. First ve
 
 **Talk while driving. Inspect while parked.**
 
-There is no product application in this repository yet. `src/` encodes module boundaries as TypeScript contracts. Later slices must respect those boundaries.
+`src/` encodes module boundaries as TypeScript contracts. The first application slice is the text-to-policy-to-in-memory-agent loop in `src/application`. Later slices must respect those boundaries.
 
 ## Conceptual flow
 
@@ -30,6 +30,7 @@ The Agent Gateway isolates the companion from individual AI providers. Provider 
 | `src/policy` | Data-driven action classification | Presentation, provider SDKs |
 | `src/agent-gateway` | Provider-neutral agent contract | Vendor types, Tesla commands |
 | `src/adapters` | Vendor-specific ports | Be imported by domain or policy |
+| `src/application` | Classify a request, ask policy, call the gateway, speak a short result | Invent policy, import vendor SDKs, persist as source of truth |
 | `src/presentation/voice` | Voice as input and concise spoken or text output | Act as a security boundary |
 | `src/persistence` | Durable store ports | Talk to a live database in this foundation |
 

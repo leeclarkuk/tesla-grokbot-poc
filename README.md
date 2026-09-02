@@ -1,8 +1,12 @@
 # tesla-grokbot-poc
 
-Voice-first driver companion. First vehicle integration is Tesla. This repository is the engineering foundation, not the product yet.
+Voice-first driver companion. First vehicle integration is Tesla.
 
 Talk while driving. Inspect while parked.
+
+The first implementation slice proves one loop: text stand-in for voice, policy with motion unknown, in-memory agent adapter, bounded task or a short refusal, spoken or text response. It does not implement speech, Tesla, OAuth, or a live database.
+
+Programmatic entry is `createInMemoryCompanion()` in `src/application`. There is no UI.
 
 ## Docs
 
@@ -23,5 +27,3 @@ npm test
 npm run typecheck
 npm run lint
 ```
-
-`src/` holds module-boundary contracts and a data-driven policy catalogue. It does not implement speech, Tesla, OAuth, or a live database.

@@ -85,7 +85,7 @@ No agent may claim a gate passed unless that command exited 0 in this environmen
 
 Do not weaken tests to make a build green. Do not delete a failing test unless the test is demonstrably invalid and the reason is recorded in the PR. Do not silently expand scope.
 
-There is no product application in this foundation. Do not start the first implementation slice unless a human explicitly asks for it.
+The first implementation slice is the voice-to-policy-to-in-memory-agent loop. Do not start a later slice unless a human explicitly asks for it.
 
 ## Engineering principles
 
@@ -122,6 +122,6 @@ Tesla vehicle control is out of the initial MVP. Do not implement arbitrary vehi
 - `docs/architecture/` conceptual architecture and ADRs
 - `docs/product/` MVP, safety policy, threat model
 - `.cursor/agents/` specialist subagents
-- `src/` module-boundary skeleton only
+- `src/` TypeScript module boundaries, first application loop, and in-memory adapter
 
 ADRs in `docs/architecture/decisions/` are binding until superseded by another ADR.
