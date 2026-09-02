@@ -43,4 +43,4 @@ Stop there. No OAuth, no streaming, no telemetry pipeline, no Tesla SDK, no UI. 
 
 ## Success for later slices
 
-A slice is done when the four gates pass, safety review has run if needed, and `independent-reviewer` has not returned `DENY`.
+A slice is done when the four gates pass, safety review has run if needed, and Independent Reviewer has not returned `DENY`.

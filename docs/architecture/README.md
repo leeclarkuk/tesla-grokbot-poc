@@ -58,7 +58,7 @@ Architecture Decision Records live in `docs/architecture/decisions/`. One decisi
 
 - Status is `Accepted` until a later ADR supersedes it.
 - Builder consumes ADRs. Builder does not silently reverse them.
-- `architecture-reasoning` is used before changing a major boundary. If the recommendation changes a decision, write a new ADR.
+- Architecture Reasoning (Grok Bot) is used before changing a major boundary. If the recommendation changes a decision, write a new ADR.
 - Do not add speculative ADRs for technologies that have not been chosen.
 
 Current ADRs:
