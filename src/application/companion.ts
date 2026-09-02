@@ -1,11 +1,10 @@
 import type { AgentGateway } from "../agent-gateway/contract.js";
-import type { MotionState } from "../domain/motion.js";
 import { evaluate } from "../policy/evaluate.js";
 import type { SpokenResponse, VoiceUtterance } from "../presentation/voice/contract.js";
 import { classifyRequest } from "./classify.js";
 import { spokenRefusal, spokenUnclassified } from "./refuse.js";
 
-const DEFAULT_MOTION: MotionState = "unknown";
+const MOTION_THIS_SLICE = "unknown" as const;
 
 function speak(text: string): SpokenResponse {
   const compact = text.trim().replace(/\s+/g, " ");
@@ -17,21 +16,19 @@ function speak(text: string): SpokenResponse {
 
 /**
  * Smallest loop above policy, Agent Gateway, and the voice contract.
- * Voice is input only. Motion defaults to unknown (treated as moving).
+ * Voice is input only. Motion is unknown (treated as moving). Callers cannot
+ * supply parked until a trusted motion source exists.
  */
 export class VoiceCompanion {
   constructor(private readonly gateway: AgentGateway) {}
 
-  async handle(
-    utterance: VoiceUtterance,
-    motion: MotionState = DEFAULT_MOTION,
-  ): Promise<SpokenResponse> {
+  async handle(utterance: VoiceUtterance): Promise<SpokenResponse> {
     const action = classifyRequest(utterance.text);
     if (action === "unclassified") {
       return speak(spokenUnclassified());
     }
 
-    const decision = evaluate(action, motion);
+    const decision = evaluate(action, MOTION_THIS_SLICE);
     if (decision !== "ALLOW") {
       return speak(spokenRefusal(decision));
     }

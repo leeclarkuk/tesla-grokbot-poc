@@ -31,7 +31,7 @@ describe("voice companion loop", () => {
     expect(classifyRequest(text)).toBe("read_agent_status");
     expect(evaluate("read_agent_status", "unknown")).toBe("ALLOW");
 
-    const response = await companion.handle(utterance(text), "unknown");
+    const response = await companion.handle(utterance(text));
 
     expect(response.text).toMatch(/Companion is idle/i);
     expect(response.text.length).toBeLessThanOrEqual(140);
@@ -46,7 +46,7 @@ describe("voice companion loop", () => {
     expect(classifyRequest(text)).toBe("delegate_bounded_task");
     expect(evaluate("delegate_bounded_task", "unknown")).toBe("ALLOW");
 
-    const response = await companion.handle(utterance(text), "unknown");
+    const response = await companion.handle(utterance(text));
 
     expect(provider.createTaskCalls).toHaveLength(1);
     expect(provider.createTaskCalls[0]?.instruction).toBe(text);
@@ -87,6 +87,42 @@ describe("voice companion loop", () => {
         decision: "DENY" as const,
         spoken: /not allowed/i,
       },
+      {
+        text: "merges the pull request",
+        action: "merge_pull_request" as const,
+        decision: "REQUIRE_PARKED_APPROVAL" as const,
+        spoken: /parked and approve/i,
+      },
+      {
+        text: "deploys production",
+        action: "deploy_production" as const,
+        decision: "DENY" as const,
+        spoken: /not allowed/i,
+      },
+      {
+        text: "make a payment",
+        action: "send_payment" as const,
+        decision: "DENY" as const,
+        spoken: /not allowed/i,
+      },
+      {
+        text: "destroys the database",
+        action: "destructive_external_write" as const,
+        decision: "DENY" as const,
+        spoken: /not allowed/i,
+      },
+      {
+        text: "roll down the windows",
+        action: "vehicle_control" as const,
+        decision: "DENY" as const,
+        spoken: /not allowed/i,
+      },
+      {
+        text: "do a bounded task that merges the pull request",
+        action: "merge_pull_request" as const,
+        decision: "REQUIRE_PARKED_APPROVAL" as const,
+        spoken: /parked and approve/i,
+      },
     ];
 
     for (const row of cases) {
@@ -96,7 +132,7 @@ describe("voice companion loop", () => {
       expect(classifyRequest(row.text)).toBe(row.action);
       expect(evaluate(row.action, "unknown")).toBe(row.decision);
 
-      const response = await companion.handle(utterance(row.text), "unknown");
+      const response = await companion.handle(utterance(row.text));
 
       expect(provider.createTaskCalls, row.text).toEqual([]);
       expect(response.text, row.text).toMatch(row.spoken);
@@ -109,7 +145,6 @@ describe("voice companion loop", () => {
 
     const first = await companion.handle(
       utterance("Look up nearby charging tips. Do not change anything."),
-      "unknown",
     );
     const agentsAfterFirst = await provider.listAgents();
     const firstCreated = provider.createdTasks[0];
@@ -121,12 +156,8 @@ describe("voice companion loop", () => {
 
     const replay = await companion.handle(
       utterance("Look up nearby charging tips. Do not change anything."),
-      "unknown",
     );
-    const denied = await companion.handle(
-      utterance("Merge the pull request"),
-      "unknown",
-    );
+    const denied = await companion.handle(utterance("Merge the pull request"));
 
     const agentsAfterReplay = await provider.listAgents();
     expect(agentsAfterReplay.map((agent) => agent.id)).toEqual(

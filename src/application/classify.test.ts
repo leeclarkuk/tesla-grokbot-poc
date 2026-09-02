@@ -26,4 +26,19 @@ describe("classifyRequest", () => {
     );
     expect(classifyRequest("Unlock the car")).toBe("vehicle_control");
   });
+
+  it("classifies inflected merge, deploy, pay, destroy, and window phrasing as those actions", () => {
+    expect(classifyRequest("merges the pull request")).toBe(
+      "merge_pull_request",
+    );
+    expect(classifyRequest("deploys production")).toBe("deploy_production");
+    expect(classifyRequest("make a payment")).toBe("send_payment");
+    expect(classifyRequest("destroys the database")).toBe(
+      "destructive_external_write",
+    );
+    expect(classifyRequest("roll down the windows")).toBe("vehicle_control");
+    expect(
+      classifyRequest("do a bounded task that merges the pull request"),
+    ).toBe("merge_pull_request");
+  });
 });

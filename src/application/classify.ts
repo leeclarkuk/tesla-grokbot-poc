@@ -19,7 +19,8 @@ const HIGH_CONSEQUENCE_RULES: readonly ClassificationRule[] = [
       /\bvehicle control\b/i,
       /\bunlock\b.*\b(car|vehicle|doors?)\b/i,
       /\block\b.*\b(car|vehicle|doors?)\b/i,
-      /\bopen\b.*\b(windows?|boot|trunk|frunk|charge port)\b/i,
+      /\b(open|close|roll (down|up))\b[\s\S]{0,24}\bwindows?\b/i,
+      /\bwindows?\b[\s\S]{0,16}\b(open|close|down|up)\b/i,
       /\bhonk\b/i,
       /\bsummon\b/i,
       /\bautopilot\b/i,
@@ -40,7 +41,11 @@ const HIGH_CONSEQUENCE_RULES: readonly ClassificationRule[] = [
   },
   {
     action: "send_payment",
-    patterns: [/\bsend (a |the )?payment\b/i, /\bpay\b/i, /\binvoice\b/i],
+    patterns: [
+      /\bsend (a |the )?payment\b/i,
+      /\bpay(s|ing|ments?)?\b/i,
+      /\binvoice\b/i,
+    ],
   },
   {
     action: "financial_transfer",
@@ -48,7 +53,7 @@ const HIGH_CONSEQUENCE_RULES: readonly ClassificationRule[] = [
   },
   {
     action: "deploy_production",
-    patterns: [/\bdeploy\b/i],
+    patterns: [/\bdeploy/i],
   },
   {
     action: "delete_infrastructure",
@@ -58,7 +63,7 @@ const HIGH_CONSEQUENCE_RULES: readonly ClassificationRule[] = [
   },
   {
     action: "destructive_external_write",
-    patterns: [/\bdestroy\b/i, /\bdelete production\b/i, /\bdrop (the )?database\b/i],
+    patterns: [/\bdestroy/i, /\bdelete production\b/i, /\bdrop (the )?database\b/i],
   },
   {
     action: "change_access_permissions",
@@ -66,7 +71,7 @@ const HIGH_CONSEQUENCE_RULES: readonly ClassificationRule[] = [
   },
   {
     action: "merge_pull_request",
-    patterns: [/\bmerge\b/i],
+    patterns: [/\bmerge/i],
   },
   {
     action: "send_consequential_communication",
