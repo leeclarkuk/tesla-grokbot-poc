@@ -4,19 +4,21 @@ This is the conceptual architecture for a voice-first driver companion. First ve
 
 **Talk while driving. Inspect while parked.**
 
-`src/` encodes module boundaries as TypeScript contracts. The first application slice is the text-to-policy-to-in-memory-agent loop in `src/application`. Later slices must respect those boundaries.
+`src/` encodes module boundaries as TypeScript contracts. Build 0 is the text-to-policy-to-in-memory-agent loop in `src/application`. Build 1 adds iPhone speech I/O (ADR-0009) and a same-process HTTP presentation adapter. Later slices must respect those boundaries.
 
 ## Conceptual flow
 
 ```
-Tesla / Bluetooth audio
-  → Driver companion application
-    → Speech-to-speech AI interface
-      → Agent Gateway
-        → Agent provider adapters
-          → Approval and policy engine
+iPhone mic + Tesla Bluetooth audio (presentation, ADR-0009)
+  → Apple Speech (on-device preferred)
+    → HTTP presentation adapter in the TypeScript process
+      → VoiceCompanion → classify → policy
+        → Agent Gateway
+          → Agent provider adapters
             → External systems
 ```
+
+The iPhone is presentation only. Policy, classification, and the gateway stay in `src/`. The HTTP listener is not a new service (ADR-0001).
 
 External systems may eventually include Tesla Fleet API, Tesla Fleet Telemetry, GitHub, Gmail, Google Calendar, coding agents, Grok-based agents, and other autonomous agent systems. None of those belong in core domain.
 
@@ -32,6 +34,8 @@ The Agent Gateway isolates the companion from individual AI providers. Provider 
 | `src/adapters` | Vendor-specific ports | Be imported by domain or policy |
 | `src/application` | Classify a request, ask policy, call the gateway, speak a short result | Invent policy, import vendor SDKs, persist as source of truth |
 | `src/presentation/voice` | Voice as input and concise spoken or text output | Act as a security boundary |
+| `src/presentation/http` | Same-process HTTP adapter: full transcript in, `SpokenResponse` out | Classify, own policy, accept motion, host on the public internet |
+| `ios/DrivingVoiceProof` | Mic, Apple Speech, Bluetooth playback, POST transcript | Policy, classify, gateway, clause splitting, vendor speech SDKs |
 | `src/persistence` | Durable store ports | Talk to a live database in this foundation |
 
 Dependencies point inward. Adapters depend on gateway and domain contracts. Domain and policy do not depend on adapters.
@@ -49,7 +53,7 @@ Navigation is a likely second slice. Vehicle control is later. See `docs/product
 - Arbitrary Tesla vehicle commands
 - Payments, deploys, production shell, permission changes
 - Live Postgres, Redis, queues, Kafka, Temporal, Kubernetes, vector databases
-- Real speech SDKs, Tesla SDKs, or model-provider SDKs
+- Vendor speech-to-speech, Tesla SDKs, or model-provider SDKs in core. iPhone presentation uses Apple Speech only (ADR-0009)
 - A visual dashboard for use while driving
 
 ## How ADRs are used
@@ -71,6 +75,7 @@ Current ADRs:
 6. Moving-versus-parked action policy
 7. Tesla is an adapter, not a core dependency
 8. Consequential external actions require durable intent, audit, and idempotency
+9. iPhone speech I/O, TypeScript companion owns policy
 
 ## Open questions
 
