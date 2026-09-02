@@ -1,0 +1,26 @@
+export const ACTION_KINDS = [
+  "read_agent_status",
+  "read_concise_summary",
+  "ask_question",
+  "delegate_bounded_task",
+  "request_draft",
+  "pause_agent",
+  "resume_agent",
+  "cancel_agent",
+  "request_research",
+  "request_navigation",
+  "hear_deferred_alert",
+  "merge_pull_request",
+  "send_consequential_communication",
+  "destructive_external_write",
+  "deploy_production",
+  "delete_infrastructure",
+  "change_access_permissions",
+  "send_payment",
+  "financial_transfer",
+  "bypass_security_control",
+  "execute_arbitrary_production_shell",
+  "vehicle_control",
+] as const;
+
+export type ActionKind = (typeof ACTION_KINDS)[number];

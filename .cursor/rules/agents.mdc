@@ -1,0 +1,8 @@
+---
+description: Load repository agent operating instructions
+alwaysApply: true
+---
+
+Read and follow `AGENTS.md` before implementing, reviewing, or changing architecture.
+
+Specialist subagents live in `.cursor/agents/`. Do not invent extra agents. Do not start product implementation unless a human explicitly asks for that slice.
