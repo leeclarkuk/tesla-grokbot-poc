@@ -20,6 +20,8 @@ Voice is an input mechanism, not a security boundary.
 | Confused deputy | Agent or adapter uses the driver's token for an attacker goal | Write in the driver's name | Per-action policy; audience-restricted tokens; never pass driver tokens to untrusted agents | A confused adapter is still a High finding |
 | Provider adapter | Compromised or malicious adapter code | Gateway bypass, secret theft, unauthorised writes | Thin adapters; no domain import of SDKs; independent review; least privilege | Supply-chain risk on the first real SDK we add |
 | Driver attention | Unsafe operation while moving | Distraction; high-consequence write from the seat | Moving-versus-parked catalogue; deny vehicle control in MVP; no dashboard | A determined driver can still park poorly and confirm. Policy reduces, it does not civilise |
+| LAN HTTP transcript | Attacker on the hotspot spoofs or intercepts the companion | Driver hears an attacker reply; an `ALLOW` task may run | Bind to hotspot/LAN only; no public host; no keys on the phone; every utterance still hits `classifyRequest` and policy | Shared hotspot is an accepted proof risk. This listener has no auth. Do not expose it |
+| On-device speech | Apple on-device recogniser unavailable; network speech temptation | Transcript leaves the device via a vendor STT | `requiresOnDeviceRecognition`; fail on the parked screen if on-device is missing; no vendor STT in this slice | In-car HFP dictation quality is accepted. It is not a reason to add Whisper |
 
 ## Review trigger
 

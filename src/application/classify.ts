@@ -88,6 +88,7 @@ const ALLOW_CANDIDATE_RULES: readonly ClassificationRule[] = [
       /\bagent status\b/i,
       /\bstatus of (the |my )?agent\b/i,
       /\bhow is (the |my )?agent\b/i,
+      /\bwhat are (my |the )?agents? doing\b/i,
     ],
   },
   {

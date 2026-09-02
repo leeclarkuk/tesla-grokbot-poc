@@ -4,7 +4,10 @@ import type { CreateTaskInput, TaskRef } from "../agent-gateway/contract.js";
 import { evaluate } from "../policy/evaluate.js";
 import type { VoiceUtterance } from "../presentation/voice/contract.js";
 import { classifyRequest } from "./classify.js";
-import { VoiceCompanion } from "./companion.js";
+import {
+  CREATE_TASK_ALLOWLIST,
+  VoiceCompanion,
+} from "./companion.js";
 
 class RecordingProvider extends InMemoryAgentProvider {
   readonly createTaskCalls: CreateTaskInput[] = [];
@@ -36,6 +39,49 @@ describe("voice companion loop", () => {
     expect(response.text).toMatch(/Companion is idle/i);
     expect(response.text.length).toBeLessThanOrEqual(140);
     expect(provider.createTaskCalls).toHaveLength(0);
+  });
+
+  it("treats 'What are my agents doing?' as status and does not createTask", async () => {
+    const provider = new RecordingProvider();
+    const companion = new VoiceCompanion(provider);
+    const text = "What are my agents doing?";
+
+    expect(classifyRequest(text)).toBe("read_agent_status");
+    expect(evaluate("read_agent_status", "unknown")).toBe("ALLOW");
+    expect(CREATE_TASK_ALLOWLIST).not.toContain("read_agent_status");
+
+    const response = await companion.handle(utterance(text));
+
+    expect(response.text).toMatch(/Companion is idle/i);
+    expect(provider.createTaskCalls).toHaveLength(0);
+  });
+
+  it("refuses mixed research-plus-merge without createTask", async () => {
+    const provider = new RecordingProvider();
+    const companion = new VoiceCompanion(provider);
+    const text =
+      "Tell the agent to research that deployment problem and then merge the fix.";
+
+    const action = classifyRequest(text);
+    expect(action).not.toBe("request_research");
+    expect(action).not.toBe("delegate_bounded_task");
+    expect(action).not.toBe("ask_question");
+    // High-consequence rules stay first. "deployment" matches deploy before merge.
+    expect(action).toBe("deploy_production");
+    expect(evaluate("deploy_production", "unknown")).toBe("DENY");
+
+    const response = await companion.handle(utterance(text));
+
+    expect(provider.createTaskCalls).toEqual([]);
+    expect(response.text).toMatch(/not allowed/i);
+  });
+
+  it("keeps the createTask allowlist to three application kinds", () => {
+    expect([...CREATE_TASK_ALLOWLIST]).toEqual([
+      "delegate_bounded_task",
+      "request_research",
+      "ask_question",
+    ]);
   });
 
   it("allows a bounded non-writing task while motion is unknown", async () => {

@@ -89,7 +89,7 @@ No agent may claim a gate passed unless that command exited 0 in this environmen
 
 Do not weaken tests to make a build green. Do not delete a failing test unless the test is demonstrably invalid and the reason is recorded in the PR. Do not silently expand scope.
 
-The first implementation slice is the voice-to-policy-to-in-memory-agent loop. Do not start a later slice unless a human explicitly asks for it.
+Build 0 is the text-to-policy-to-in-memory-agent loop. Build 1 is iPhone speech I/O plus a same-process HTTP adapter (ADR-0009). Do not start a later slice unless a human explicitly asks for it.
 
 ## Engineering principles
 
@@ -126,6 +126,7 @@ Tesla vehicle control is out of the initial MVP. Do not implement arbitrary vehi
 - `docs/architecture/` conceptual architecture and ADRs
 - `docs/product/` MVP, safety policy, threat model
 - Grok Bot seats: Builder (Lead Engineer), Architecture Reasoning, Hard Build Debug, Security Safety Reviewer, Independent Reviewer, Fable Specialist (fallback only)
-- `src/` TypeScript module boundaries, first application loop, and in-memory adapter
+- `src/` TypeScript module boundaries, application loop, same-process HTTP presentation adapter, and in-memory adapter
+- `ios/DrivingVoiceProof/` native iPhone presentation (mic, Apple Speech, Bluetooth playback)
 
 ADRs in `docs/architecture/decisions/` are binding until superseded by another ADR.
