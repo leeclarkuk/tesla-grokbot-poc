@@ -20,6 +20,7 @@ Programmatic entry remains `createInMemoryCompanion()` in `src/application`. Pho
 - MVP boundary: [`docs/product/mvp.md`](docs/product/mvp.md)
 - Driver safety policy: [`docs/product/driver-safety-policy.md`](docs/product/driver-safety-policy.md)
 - Threat model: [`docs/product/threat-model.md`](docs/product/threat-model.md)
+- How to run Build 1 from a parked phone: [`docs/product/how-to-run-build-1.md`](docs/product/how-to-run-build-1.md)
 
 ## Run the TypeScript companion
 
