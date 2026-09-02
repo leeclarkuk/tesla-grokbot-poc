@@ -6,6 +6,10 @@ describe("classifyRequest", () => {
     expect(classifyRequest("What is the agent status?")).toBe("read_agent_status");
   });
 
+  it("reads 'What are my agents doing?' as status, not a question", () => {
+    expect(classifyRequest("What are my agents doing?")).toBe("read_agent_status");
+  });
+
   it("treats harmless lookup as bounded work, not a write", () => {
     expect(
       classifyRequest("Look up nearby charging tips. Do not change anything."),

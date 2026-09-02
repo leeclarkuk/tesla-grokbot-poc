@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDisplayName</key>
+	<string>Driving Voice Proof</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>The microphone captures your request so it can be transcribed on this iPhone. Enable it while parked, then use it over Tesla Bluetooth while driving.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Speech recognition transcribes your request on this iPhone. The full transcript is sent to your companion. This app does not classify or approve actions.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>The parked setup screen reaches the companion on your developer machine over the hotspot or LAN.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
+</dict>
+</plist>

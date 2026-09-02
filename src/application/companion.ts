@@ -1,10 +1,48 @@
 import type { AgentGateway } from "../agent-gateway/contract.js";
+import type { ActionKind } from "../domain/actions.js";
+import type { PolicyDecision } from "../policy/decisions.js";
 import { evaluate } from "../policy/evaluate.js";
 import type { SpokenResponse, VoiceUtterance } from "../presentation/voice/contract.js";
-import { classifyRequest } from "./classify.js";
+import { classifyRequest, type ClassifiedAction } from "./classify.js";
 import { spokenRefusal, spokenUnclassified } from "./refuse.js";
 
 const MOTION_THIS_SLICE = "unknown" as const;
+
+/**
+ * Application-layer createTask allowlist.
+ *
+ * Policy may ALLOW pause, navigation, drafts, and similar while moving. This
+ * slice still only calls `createTask` for these three kinds. A missing
+ * application branch is not a product success: pause/navigation will speak
+ * agent status and must not silently no-op later. Do not expand this list
+ * in this slice.
+ */
+export const CREATE_TASK_ALLOWLIST = [
+  "delegate_bounded_task",
+  "request_research",
+  "ask_question",
+] as const satisfies ReadonlyArray<ActionKind>;
+
+export type CreateTaskAllowlistedAction = (typeof CREATE_TASK_ALLOWLIST)[number];
+
+export function isCreateTaskAllowlisted(
+  action: ClassifiedAction,
+): action is CreateTaskAllowlistedAction {
+  return (CREATE_TASK_ALLOWLIST as readonly string[]).includes(action);
+}
+
+export interface CompanionTurnLog {
+  readonly timestamp: string;
+  readonly transcript: string;
+  readonly classifiedAction: ClassifiedAction;
+  readonly policyDecision: PolicyDecision | null;
+  readonly spokenText: string;
+  readonly createTaskRan: boolean;
+}
+
+export interface VoiceCompanionOptions {
+  readonly onTurn?: (log: CompanionTurnLog) => void;
+}
 
 function speak(text: string): SpokenResponse {
   const compact = text.trim().replace(/\s+/g, " ");
@@ -20,43 +58,64 @@ function speak(text: string): SpokenResponse {
  * supply parked until a trusted motion source exists.
  */
 export class VoiceCompanion {
-  constructor(private readonly gateway: AgentGateway) {}
+  private readonly onTurn: ((log: CompanionTurnLog) => void) | undefined;
+
+  constructor(
+    private readonly gateway: AgentGateway,
+    options: VoiceCompanionOptions = {},
+  ) {
+    this.onTurn = options.onTurn;
+  }
 
   async handle(utterance: VoiceUtterance): Promise<SpokenResponse> {
-    const action = classifyRequest(utterance.text);
-    if (action === "unclassified") {
-      return speak(spokenUnclassified());
-    }
+    let classifiedAction: ClassifiedAction = "unclassified";
+    let policyDecision: PolicyDecision | null = null;
+    let createTaskRan = false;
+    let spoken: SpokenResponse = speak(spokenUnclassified());
 
-    const decision = evaluate(action, MOTION_THIS_SLICE);
-    if (decision !== "ALLOW") {
-      return speak(spokenRefusal(decision));
-    }
+    try {
+      classifiedAction = classifyRequest(utterance.text);
+      if (classifiedAction === "unclassified") {
+        spoken = speak(spokenUnclassified());
+        return spoken;
+      }
 
-    const agents = await this.gateway.listAgents();
-    const listed = agents[0];
-    if (!listed) {
-      return speak("No agents available.");
-    }
-    const status = await this.gateway.getAgentStatus(listed.id);
+      policyDecision = evaluate(classifiedAction, MOTION_THIS_SLICE);
+      if (policyDecision !== "ALLOW") {
+        spoken = speak(spokenRefusal(policyDecision));
+        return spoken;
+      }
 
-    if (action === "read_agent_status" || action === "read_concise_summary") {
-      return speak(`${status.displayName} is ${status.status}.`);
-    }
+      const agents = await this.gateway.listAgents();
+      const listed = agents[0];
+      if (!listed) {
+        spoken = speak("No agents available.");
+        return spoken;
+      }
+      const status = await this.gateway.getAgentStatus(listed.id);
 
-    if (
-      action !== "delegate_bounded_task" &&
-      action !== "request_research" &&
-      action !== "ask_question"
-    ) {
-      return speak(`${status.displayName} is ${status.status}.`);
-    }
+      if (!isCreateTaskAllowlisted(classifiedAction)) {
+        spoken = speak(`${status.displayName} is ${status.status}.`);
+        return spoken;
+      }
 
-    const task = await this.gateway.createTask({
-      agentId: listed.id,
-      instruction: utterance.text,
-    });
-    const result = await this.gateway.getResult(task.id);
-    return speak(result.summary);
+      const task = await this.gateway.createTask({
+        agentId: listed.id,
+        instruction: utterance.text,
+      });
+      createTaskRan = true;
+      const result = await this.gateway.getResult(task.id);
+      spoken = speak(result.summary);
+      return spoken;
+    } finally {
+      this.onTurn?.({
+        timestamp: new Date().toISOString(),
+        transcript: utterance.text,
+        classifiedAction,
+        policyDecision,
+        spokenText: spoken.text,
+        createTaskRan,
+      });
+    }
   }
 }
