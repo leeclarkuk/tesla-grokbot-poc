@@ -1,7 +1,6 @@
 import type {
   AgentSummary,
   CreateTaskInput,
-  SendInstructionInput,
   TaskRef,
   TaskResult,
 } from "../agent-gateway/contract.js";
@@ -76,10 +75,10 @@ export class InMemoryAgentProvider implements AgentProviderAdapter {
     return { taskId, summary: task.summary };
   }
 
-  async sendInstruction(_input: SendInstructionInput): Promise<void> {}
-  async pauseAgent(_agentId: string): Promise<void> {}
-  async resumeAgent(_agentId: string): Promise<void> {}
-  async cancelAgent(_agentId: string): Promise<void> {}
-  async approveAction(_actionId: string): Promise<void> {}
-  async rejectAction(_actionId: string, _reason?: string): Promise<void> {}
+  async sendInstruction(): Promise<void> {}
+  async pauseAgent(): Promise<void> {}
+  async resumeAgent(): Promise<void> {}
+  async cancelAgent(): Promise<void> {}
+  async approveAction(): Promise<void> {}
+  async rejectAction(): Promise<void> {}
 }
