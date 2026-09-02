@@ -4,7 +4,7 @@ This repository is a voice-first driver companion. First vehicle integration is 
 
 **Talk while driving. Inspect while parked.**
 
-Builder is the primary implementation agent. Specialist subagents exist for judgement that Builder must not fake. Do not invent extra agents. Do not delegate ordinary work because a specialist file exists.
+Lead Engineer in Grok Bot is Builder. Five Grok Bot specialists exist for judgement that Builder must not fake. Do not invent extra agents. Do not recreate those seats as Cursor agents. Do not delegate ordinary work because a specialist seat exists.
 
 Read `docs/architecture/README.md`, `docs/product/mvp.md`, and `docs/product/driver-safety-policy.md` before changing behaviour, boundaries, or policy.
 
@@ -21,34 +21,36 @@ Responsibilities:
 - Keep changes atomic and inside the agreed slice.
 - Consume ADRs. If a decision is wrong, propose a new ADR rather than quietly reversing it.
 - Address reviewer findings. Prepare commits and PR-ready changes.
-- Delegate specialist problems only when the work actually needs that specialist.
+- Ask the matching Grok Bot specialist only when the work actually needs that seat.
 
 Builder must not:
 
 - Override specialist safety or architecture decisions without recording why in the PR.
 - Delegate ordinary implementation merely because another agent exists.
-- Mark a slice complete before the independent review gate passes.
+- Mark a slice complete before Independent Reviewer has passed.
 - Start work outside the current MVP slice.
 - Add queues, Kubernetes, Redis, Kafka, Temporal, event buses, vector databases, or microservices unless the current problem requires them. If none, do not introduce them.
 
 ## Delegation
 
+These seats live in Grok Bot. They are not Cursor agents.
+
 | Situation | Who |
 | --- | --- |
-| Ordinary implementation | Builder |
-| Changing a major architectural boundary, domain model, provider abstraction, Agent Gateway contract, event architecture, state ownership, failure recovery, Tesla integration boundary, or mobile versus server split | `architecture-reasoning` first |
-| OAuth, streaming, concurrency, telemetry, retries, idempotency, distributed failure, background jobs, difficult integrations, agent lifecycle bugs, state reconciliation, hard-to-reproduce failures | `hard-build-debug` |
-| Auth, permissions, token storage, secrets, external writes, vehicle commands, driver distraction, approval policy, moving-versus-parked restrictions | `security-safety-reviewer` |
-| A build slice is believed complete | `independent-reviewer` |
-| Normal specialist path is genuinely unsuitable | `fable-specialist` only if `FALLBACK_JUSTIFIED=true` |
+| Ordinary implementation | Builder (Lead Engineer) |
+| Changing a major architectural boundary, domain model, provider abstraction, Agent Gateway contract, event architecture, state ownership, failure recovery, Tesla integration boundary, or mobile versus server split | Architecture Reasoning first |
+| OAuth, streaming, concurrency, telemetry, retries, idempotency, distributed failure, background jobs, difficult integrations, agent lifecycle bugs, state reconciliation, hard-to-reproduce failures | Hard Build Debug |
+| Auth, permissions, token storage, secrets, external writes, vehicle commands, driver distraction, approval policy, moving-versus-parked restrictions | Security Safety Reviewer |
+| A build slice is believed complete | Independent Reviewer |
+| Normal specialist path is genuinely unsuitable | Fable Specialist only if `FALLBACK_JUSTIFIED=true` |
 
-`architecture-reasoning` is read-only. It does not write production code.
+Architecture Reasoning is read-only. It does not write production code.
 
-`hard-build-debug` is write-enabled. Builder invokes it only when implementation is genuinely difficult.
+Hard Build Debug is write-enabled. Builder asks it only when implementation is genuinely difficult.
 
-`security-safety-reviewer` is read-only. Every external write needs an explicit policy classification.
+Security Safety Reviewer is read-only. Every external write needs an explicit policy classification.
 
-`independent-reviewer` is read-only. It must not modify code. It must return exactly one of:
+Independent Reviewer is read-only. It must not modify code. It must return exactly one of:
 
 - `APPROVE`
 - `APPROVE WITH LOW FINDINGS`
@@ -56,7 +58,7 @@ Builder must not:
 
 `DENY` blocks completion. Builder must fix High findings and material Medium findings, then request another independent review.
 
-`fable-specialist` is fallback only. It must not participate in normal execution. The invoking agent must state why the normal specialist path is unsuitable.
+Fable Specialist is fallback only. It must not participate in normal execution. The invoking agent must state why the normal specialist path is unsuitable.
 
 Avoid agent theatre. One capable Builder plus specialists on real problems beats a committee.
 
@@ -68,7 +70,9 @@ Every later implementation slice follows:
 
 Security review is applicable when the slice touches authentication, authorisation, tokens, secrets, external writes, vehicle commands, approval policy, or driver-safety restrictions.
 
-Builder must not claim completion if `independent-reviewer` returned `DENY`, or if any required gate was skipped.
+Lead Engineer sends the PR to the Grok Bot Security Safety Reviewer and Independent Reviewer. If this environment cannot message Grok Bot, write standing review artefacts in the PR and leave routing to Lead Engineer.
+
+Builder must not claim completion if Independent Reviewer returned `DENY`, or if any required gate was skipped.
 
 ## Required verification
 
@@ -85,7 +89,7 @@ No agent may claim a gate passed unless that command exited 0 in this environmen
 
 Do not weaken tests to make a build green. Do not delete a failing test unless the test is demonstrably invalid and the reason is recorded in the PR. Do not silently expand scope.
 
-There is no product application in this foundation. Do not start the first implementation slice unless a human explicitly asks for it.
+The first implementation slice is the voice-to-policy-to-in-memory-agent loop. Do not start a later slice unless a human explicitly asks for it.
 
 ## Engineering principles
 
@@ -121,7 +125,7 @@ Tesla vehicle control is out of the initial MVP. Do not implement arbitrary vehi
 
 - `docs/architecture/` conceptual architecture and ADRs
 - `docs/product/` MVP, safety policy, threat model
-- `.cursor/agents/` specialist subagents
-- `src/` module-boundary skeleton only
+- Grok Bot seats: Builder (Lead Engineer), Architecture Reasoning, Hard Build Debug, Security Safety Reviewer, Independent Reviewer, Fable Specialist (fallback only)
+- `src/` TypeScript module boundaries, first application loop, and in-memory adapter
 
 ADRs in `docs/architecture/decisions/` are binding until superseded by another ADR.

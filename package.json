@@ -2,7 +2,7 @@
   "name": "tesla-grokbot-poc",
   "version": "0.0.1",
   "private": true,
-  "description": "Engineering foundation for a voice-first driver companion. Product application is not implemented.",
+  "description": "Voice-first driver companion. First slice: text stand-in, policy, in-memory agent loop.",
   "license": "MIT",
   "type": "module",
   "engines": {

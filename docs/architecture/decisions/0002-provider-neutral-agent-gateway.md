@@ -20,4 +20,4 @@ Gateway operations: list agents, get status, create task, send instruction, paus
 
 - Core domain can be tested with a fake adapter.
 - Provider-specific features must be translated at the adapter, or explicitly rejected.
-- Changing the gateway contract is an architectural change. Use `architecture-reasoning` first.
+- Changing the gateway contract is an architectural change. Ask Architecture Reasoning first.

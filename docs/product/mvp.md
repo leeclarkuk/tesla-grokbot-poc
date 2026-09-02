@@ -29,9 +29,9 @@ Navigation: "find the address and navigate there". Still no vehicle control beyo
 - Multi-provider routing
 - UI for complex inspection while driving
 
-## Proposed smallest safe first implementation slice
+## First implementation slice
 
-Proposal only. Do not implement in the foundation PR.
+This slice is implemented in `src/application` plus `src/adapters/in-memory.ts`.
 
 1. Accept a text stand-in for voice input (`VoiceUtterance.text`).
 2. Classify the request against the policy catalogue with motion `unknown` (treated as moving).
@@ -39,8 +39,8 @@ Proposal only. Do not implement in the foundation PR.
 4. If allowed, `createTask` for a bounded, non-writing task.
 5. `getResult` and return a short `SpokenResponse`.
 
-Stop there. No OAuth, no streaming, no telemetry pipeline, no Tesla SDK, no UI.
+Stop there. No OAuth, no streaming, no telemetry pipeline, no Tesla SDK, no UI. High-consequence phrasing is classified as that action, not as `delegate_bounded_task`.
 
 ## Success for later slices
 
-A slice is done when the four gates pass, safety review has run if needed, and `independent-reviewer` has not returned `DENY`.
+A slice is done when the four gates pass, safety review has run if needed, and Independent Reviewer has not returned `DENY`.
